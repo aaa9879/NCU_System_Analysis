@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <title>繳費記錄</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        h1{
+			background-color: black;
+            padding: 20px;
+            text-align: center;
+            color: white;
+		}
+		#returnButton {
+    		background-color: #d9534f;
+    		color: white;
+    		padding: 12px 24px; 
+    		border: none;
+    		border-radius: 5px;
+    		cursor: pointer;
+    		margin-left: auto;
+		}
+    </style>
+</head>
+<body>
+	  <div id="container">
+        
+        <div id="content">
+    	<h1>繳費記錄</h1>
+		<button id="returnButton" onclick="returnhome()">回到首頁</button>
+   	 <table id="table">
+        <thead>
+            <tr>
+                <th>社員編號</th>
+                <th>繳費序列</th>
+                <th>繳費金額</th>
+            </tr>
+        </thead>
+        <tbody>
+		</tbody>
+    </table>
+
+    <script type="text/javascript">
+		 var url = new URL(window.location.href);
+		 var id = url.searchParams.get("id");
+		 function returnhome() {
+      		window.location.href = 'user_home_page.html?id=' + id;
+    	}
+		 $(document).ready(function() {
+         	getByid();
+          });
+		 function getByid() {
+			var data_string ="id="+encodeURIComponent(id);
+         	$.ajax({
+            	type: "GET",
+                url: "api/paidrecord.do?" + data_string,
+                data: data_string,
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+       	        	if(response.status == 200){
+                        updateTable(response.response.data);   
+                     }
+                       console.log(response);          
+                },
+                error: function () {
+                	alert("無法連線到伺服器！");
+                }
+              });
+           }
+            function updateTable(data) {
+                    $("#table > tbody").empty();
+                    var table_html = '';
+                    $.each(data, function(index, value) {
+                        table_html += '<tr><td scope="row">' + value['id'] + '</td>';
+                        table_html += '<td>' + value['paid_sequence'] + '</td>';
+                        table_html += '<td>' + value['paid_fee'] + '</td>';
+                    })
+
+                    $("#table > tbody").append(table_html);
+                }
+    </script>
+    </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Information Page</title>
+    <link rel="stylesheet" href="statics/css/registerStyle.css">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+</head>
+	<div>
+		<button id="returnButton" onclick="returnhome()">回到首頁</button>
+	</div>
+<body>
+
+    <div class="register-container">
+    <h2>修改資訊</h2>
+    <form class="register-form">
+        <div class="form-group">
+            <label for="name">姓名:</label>
+            <input type="text" id="name" name="name">
+        </div>
+        <div class="form-group">
+            <label for="email">電子郵件:</label>
+            <input type="email" id="email" name="email" disabled>
+        </div>
+        <div class="form-group">
+            <label for="password">密碼:</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <div class="form-group">
+            <label for="phone">電話號碼:</label>
+            <input type="tel" id="phone" name="phone">
+        </div>
+        <div class="form-group">
+            <label for="group">組別:</label>
+            <select id="group" name="group">
+                <option value="" disabled selected>Select an option</option>
+                <option value="木管">木管</option>
+                <option value="銅管">銅管</option>
+                <option value="打擊">打擊</option>
+            </select>
+        </div>
+        <div id="flashMessage" class="message" style="display: none;"></div>
+
+        <button type="button" class="submit" id="submit">確認更改</button>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var id = url.searchParams.get("edit_id");
+    var ID=url.searchParams.get("id");
+
+    var identity = url.searchParams.get("edit_identity");
+ 
+    var Identity= url.searchParams.get("identity");
+	function returnhome() {
+		if(Identity==='1'){	
+			window.location.href = 'user_home_page.html?id='+ ID;
+		}else if(Identity==='2'){
+			window.location.href = 'admin_home_page.html?id='+ ID;
+		}
+	}
+
+    function updateMember(id) {
+        var name = $('#name').val();
+        var password = $('#password').val();
+        var phone = $('#phone').val();
+        var group = $('#group').val();
+        var password_rule = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+        if (!password_rule.test(password)) {
+            alert("密碼格式不符，長度至少8，且至少包含一個數字和英文字母！");
+        } else {
+            if (group === null) {
+                var data_object = {
+                    "id": id,
+                    "name": name,
+                    "password": password,
+                    "phone": phone,
+                    "group": "無" 
+                };
+            } else {
+                var data_object = {
+                    "id": id,
+                    "name": name,
+                    "password": password,
+                    "phone": phone,
+                    "group": group
+                };
+            }
+
+            var data_string = JSON.stringify(data_object);
+            $.ajax({
+                type: "POST",
+                url: "api/member.do",
+                data: data_string,
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+                    $('#flashMessage').html(response.message);
+                    $('#flashMessage').show();
+                    if (response.status == 200) {
+                        getMember();
+                        alert("更新成功");
+                        if(Identity==='2'){
+							if(identity==='1'){	
+								window.location.href = 'member_list.html?id='+ ID;
+							}else if(identity==='2'){
+								
+								window.location.href = 'admin.html?id='+ ID;
+							}else{
+								
+								window.location.href = 'teacher_list.html?id='+ ID;
+							}
+						}
+						else
+						{
+							window.location.href = 'user_home_page.html?id='+ ID;
+
+						}
+                        
+                    }
+                },
+                error: function () {
+                    alert("無法連線到伺服器！");
+                }
+            });
+        }
+    }
+
+    function getMember() {
+        $.ajax({
+            type: "GET",
+            url: "api/member.do",
+            crossDomain: true,
+            data: "id=" + id,
+            cache: false,
+            dataType: 'json',
+            timeout: 5000,
+            success: function (response) {
+               console.log(response);
+                if (response.status == 200) {
+                    document.getElementById('name').value = response['response']['data'][0]['name'];
+                    document.getElementById('email').value = response['response']['data'][0]['account'];
+                    document.getElementById('password').value = response['response']['data'][0]['password'];
+                    document.getElementById('phone').value = response['response']['data'][0]['phone'];
+                    document.getElementById('group').value = response['response']['data'][0]['group'];
+                }
+                
+            },
+            error: function () {
+                alert("無法連線到伺服器！");
+            }
+        });
+    }
+
+    $('#submit').click(function () {
+        updateMember(id)
+    });
+
+    $(document).ready(function () {
+
+    $("#sql_log > tbody").empty();
+    getMember();
+    if (identity === '2'||identity === '3') {
+        var groupSelect = $('#group');
+        groupSelect.prop('disabled', true);
+
+        groupSelect.empty();
+
+        groupSelect.append($('<option>', {
+            value: '無',
+            text: '無',
+            selected: true
+        }));
+    }
+});
+
+</script>
+</body>
+</html>
+

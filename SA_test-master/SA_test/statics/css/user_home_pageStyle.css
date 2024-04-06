@@ -1,0 +1,149 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: white;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
+.logo {
+
+    height: 80px; 
+    margin-right: 20px; /* 在logo和標題之間添加一些間距 */
+
+}
+
+nav {
+    background-color: #555;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: black;
+    transition: background-color 0.5s ease; 
+}
+
+nav a {
+    color: black;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #555;
+    background-color: #28a745; 
+}
+
+section {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+main {
+    flex: 2;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+#announcementList li {
+    margin-bottom: 20px; /* 調整條目之間的垂直間距 */
+}
+
+#announcementList strong {
+    display: block; /* 讓標題和內容顯示為區塊元素，這樣它們會在不同行 */
+    margin-bottom: 5px; /* 調整標題和內容之間的垂直間距 */
+}
+
+.slider {
+    width: 80%; /* 或你想要的任何適合的寬度 */
+    margin: auto; /* 如果你想讓滑動窗格居中 */
+    overflow: hidden;
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex; /* 使用 Flexbox */
+    flex-direction: column; /* 垂直排列 */
+    align-items: center; /* 水平居中 */
+    justify-content: center; /* 垂直居中 */
+}
+
+.slide img {
+    width: auto; /* 让图片宽度自适应 */
+    max-width: 100%; /* 最大宽度为容器宽度 */
+    max-height: 300px; /* 最大高度，可以根据需要调整 */
+    height: auto; /* 保持图片比例 */
+    display: block;
+    object-fit: contain; /* 保持图片原始比例 */
+    margin-bottom: 10px; /* 在图片和文字之间添加一些间距 */
+}
+
+.slide p {
+    font-size: 16px; /* 文字大小 */
+    color: #333; /* 文字颜色 */
+    text-align: center; /* 文字居中 */
+}
+
+.announcement-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    border-radius: 8px; /* 圓角邊框 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 1); /* 輕微的陰影效果 */
+    padding: 15px; /* 內部間距 */
+}
+.announcement-card:hover {
+    border-color: #aaa; /* 懸浮時邊框顏色變深 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 懸浮時陰影更明顯 */
+}
+
+.announcement-title {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+    padding-bottom: 10px; /* 添加一些底部內邊距 */
+    margin-bottom: 10px; /* 與內容之間的間距 */
+}
+
+.announcement-content {
+    font-size: 14px;
+    color: #666;
+}
+#logoutButton {
+    background-color: #d9534f;
+    color: white;
+    padding: 12px 24px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+
+

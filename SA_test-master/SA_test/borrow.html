@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>Instrument Catalog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color:black;
+            color:white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        input[type="search"] {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .category {
+            margin: 20px;
+        }
+
+        .category-title {
+            font-size: 24px;
+            color: #333;
+            padding-left: 10px;
+        }
+
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .product {
+            width: 30%;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .product img {
+            width: 100%; 
+            height: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .product-info {
+            font-size: 18px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #f1f1f1;
+        }
+
+        button {
+            padding: 5px 15px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        #returnButton {
+    		background-color: #d9534f;
+    		color: white;
+    		padding: 12px 24px; 
+    		border: none;
+    		border-radius: 5px;
+    		cursor: pointer;
+    		margin-left: auto;
+		}
+    </style>
+</head>
+
+<body>
+    <header>
+		<button id="returnButton" onclick="returnhome()">回到首頁</button>
+        <input type="search" placeholder="Search...">
+    </header>
+
+    <main>
+        <div class="category">
+            <h2 class="category-title">木管樂器</h2>
+            <section class="product-grid">
+                <!-- Flute -->
+                <div class="product">
+                    <a href="" id="fluteLink"> 
+                        <img src="statics/img/flute.jpg" alt="Flute">
+                    </a>
+                    <div class="product-info">
+                        <h3>Flute</h3>
+                        <p id="FluteQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between Flute and Piccolo -->
+                <div style="width: 2%;"></div>
+
+                <!-- Piccolo -->
+                <div class="product">
+                     <a href="" id="piccoloLink">
+                        <img src="statics/img/piccolo.jpg" alt="Piccolo">
+                    </a>
+                    <div class="product-info">
+                        <h3>Piccolo</h3>
+                        <p id="PiccoloQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between Piccolo and Clarinet -->
+                <div style="width: 2%;"></div>
+
+                <!-- Clarinet -->
+                <div class="product">
+                    <a href="" id="clarinetLink">
+                        <img src="statics/img/clarinet.png" alt="Clarinet">
+                    </a>
+                    <div class="product-info">
+                        <h3>Clarinet</h3>
+                        <p id="ClarinetQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between Clarinet and Oboe -->
+                <div style="width: 2%;"></div>
+
+                <!-- Oboe -->
+                <div class="product">
+                    <a href="" id="oboeLink">
+                        <img src="statics/img/oboe.jpg" alt="Oboe">
+                    </a>
+                    <div class="product-info">
+                        <h3>Oboe</h3>
+                        <p id="OboeQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between Oboe and Bassoon -->
+                <div style="width: 2%;"></div>
+
+                <!-- Bassoon -->
+                <div class="product">
+
+                    <a href="" id="bassoonLink">
+                        <img src="statics/img/bassoon.png" alt="Bassoon"> 
+
+                    </a>
+                    <div class="product-info">
+                        <h3>Bassoon</h3>
+                        <p id="BassoonQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between Bassoon and Saxophone -->
+                <div style="width: 2%;"></div>
+
+                <!-- Saxophone -->
+                <div class="product">
+                    <a href="" id="saxophoneLink">
+                        <img src="statics/img/saxophone.jpeg" alt="Saxophone">
+                    </a>
+                    <div class="product-info">
+                        <h3>Saxophone</h3>
+                        <p id="SaxophoneQuantity"></p>
+                    </div>
+                </div>
+                <!-- Repeat for other woodwind products -->
+            </section>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">銅管樂器</h2>
+            <section class="product-grid">
+                <!-- Trumpet -->
+                <div class="product">
+                    <a href="" id="trumpetLink">
+                        <img src="statics/img/trumpet.jpg" alt="Trumpet">
+                    </a>
+                    <div class="product-info">
+                        <h3>Trumpet</h3>
+                        <p id="TrumpetQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between trumpet and Trombone -->
+                <div style="width: 2%;"></div>
+
+                <!-- Trombone -->
+                <div class="product">
+                    <a href="" id="tromboneLink">
+                        <img src="statics/img/trombone.jpeg" alt="Trombone">
+                    </a>
+                    <div class="product-info">
+                        <h3>Trombone</h3>
+                        <p id="TromboneQuantity"></p>
+                    </div>
+                </div>
+
+                <!-- Space between Horn and Trombone -->
+                <div style="width: 2%;"></div>
+
+                <!-- Horn -->
+                <div class="product">
+                    <a href="" id="hornLink">
+                        <img src="statics/img/horn.jpg" alt="Horn">
+                    </a>
+                    <div class="product-info">
+                        <h3>Horn</h3>
+                        <p id="HornQuantity"></p>
+                    </div>
+                </div>
+                <!-- Repeat for other brass products -->
+            </section>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">其他</h2>
+            <section class="product-grid">
+                <!-- Piano -->
+                <div class="product">
+                    <a href="" id="pianoLink">
+                        <img src="statics/img/piano.jpg" alt="Piano">
+                    </a>
+                    <div class="product-info">
+                        <h3>Piano</h3>
+                        <p id="PianoQuantity"></p>
+                    </div>
+                </div>
+
+                <div style="width: 2%;"></div>
+
+                <!-- Double Bass -->
+                <div class="product">
+                    <a href="" id="timpaniLink">
+                        <img src="statics/img/timpani.jpg" alt="Timpani"> 
+                    </a>
+                    <div class="product-info">
+                        <h3>Double Bass</h3>
+                        <p id="Double_BassQuantity"></p> 
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+
+    <script>
+		var url_string = window.location.href;
+		var url = new URL(url_string);
+		var id = url.searchParams.get("id");
+		function returnhome() {
+      		window.location.href = 'user_home_page.html?id=' + id;
+   		}
+        document.addEventListener('DOMContentLoaded', function() {
+          const searchInput = document.querySelector('input[type="search"]');
+
+          searchInput.addEventListener('input', function() {
+            const query = searchInput.value.toLowerCase();
+            const categories = document.querySelectorAll('.category');
+
+            categories.forEach(category => {
+              const products = category.querySelectorAll('.product');
+              let categoryHasVisibleProducts = false;
+
+              products.forEach(product => {
+                const productName = product.querySelector('h3').textContent.toLowerCase();
+                if (productName.includes(query)) {
+                  product.style.display = 'block';
+                  categoryHasVisibleProducts = true;
+                } else {
+                  product.style.display = 'none';
+                }
+              });
+
+              category.style.display = categoryHasVisibleProducts ? 'block' : 'none';
+            });
+          });
+        });
+
+        function getAllInstrument() {
+            $.ajax({
+                type: "GET",
+                url: "api/instrument.do",
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+                    if(response.status == 200){
+                        updateInstrument(response.response.data);
+                    }
+                    console.log(response);
+                },
+                error: function () {
+                    alert("無法連線到伺服器！");
+                }
+            });
+        }
+
+        function updateInstrument(data) {
+            $.each(data, function(index, value) {
+                var selector = "#" + value['name'] + "Quantity";
+                $(selector).text("Quantity: " + value['quantity']);
+            });
+        }
+
+        $(document).ready(function() {
+            getAllInstrument();
+        });
+
+        $(document).ready(function() {
+            var url = new URL(window.location.href);
+            var user_id = url.searchParams.get("id");
+            $('#fluteLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Flute&instrument_id=1');
+            $('#piccoloLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Piccolo&instrument_id=2');
+            $('#clarinetLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Clarinet&instrument_id=3');
+            $('#oboeLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Oboe&instrument_id=4');
+            $('#bassoonLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Bassoon&instrument_id=5');
+            $('#saxophoneLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Saxophone&instrument_id=6');
+            $('#trumpetLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Trumpet&instrument_id=7');
+            $('#tromboneLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Trombone&instrument_id=8');
+            $('#hornLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Horn&instrument_id=9');
+            $('#pianoLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Piano&instrument_id=10');
+            $('#timpaniLink').attr('href', 'chooseBorrowTime.html?id='+user_id+'&instrument_name=Timpani&instrument_id=11');
+            
+            getAllInstrument();
+
+            $('.product a').on('click', function(event) {
+                var quantityText = $(this).siblings('.product-info').find('p').text();
+                if (quantityText.includes('Quantity: 0')) {
+                    event.preventDefault();
+                    alert("數量不足，無法借閱");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

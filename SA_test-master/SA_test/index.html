@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="statics/css/indexStyle.css">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h2>登入</h2>
+            <form class="login-form" action="#" method="post">
+                <div class="form-group">
+                    <label for="login-username">帳號:</label>
+                    <input type="email" id="email" name="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密碼:</label>
+                    <input type="password" id="password" name="login-password" required>
+                </div>
+                <div id="flashMessage" class="message" style="display: none;"></div>
+                <button type="button" class="login-button" id="login">登入</button>
+            </form>
+        </div>
+
+        <div class="register-container">
+            <h2>註冊</h2>
+            <p>沒有帳號? <a href="register.html">註冊</a>.</p>
+        </div>
+    </div>
+
+	<script type="text/javascript">
+                 $(document).ready(function() {
+                    var $form = $('#login');
+                    $form.click(function() {
+                      	login();
+                    });
+                    function login() {
+                        var email = $('#email').val();
+                        var password = $('#password').val();
+
+                       var data_object = {
+						    "account": email,
+						    "password": password,
+						    "login":"yes"
+						};
+						//email和password丟入ajax
+						var data_string = "account=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password)+ "&login=" + encodeURIComponent("yes");
+                        $.ajax({
+						    type: "GET",
+						    url: "api/member.do?" + data_string,
+						    data: data_string,
+						    crossDomain: true,
+						    cache: false,
+						    dataType: 'json',
+						    timeout: 5000,
+						    success: function (response) {
+						        var Rsp = response.status;
+						        if (Rsp == 0) {
+						            $('#flashMessage').html(response.message);
+						            $('#flashMessage').show();
+						        } else if (Rsp == 1 && response.identity == 2) {
+						            alert("系統管理員登入成功");
+
+						            window.location.href = 'admin_home_page.html?id='+ response.id	;
+
+						        } else if (Rsp == 1 && response.identity == 1) {
+						            alert("社員登入成功");
+						
+						            // 直接使用 id 屬性
+						            window.location.href = 'user_home_page.html?id=' + response.id;
+						        }
+						        else if(Rsp == 1 && response.identity == 3) {
+									window.location.href = 'teacher_home_page.html?id=' + response.id;
+								}
+						    },
+						    error: function () {
+						        alert("無法連線到伺服器！");
+						    }
+						});
+                        
+                            
+                        
+                    }
+                });
+			
+			      
+	</script>
+
+</body>
+
+
+</html>

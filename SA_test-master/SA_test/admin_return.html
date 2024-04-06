@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <title>歸還</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            color:white;
+            background-color:black;
+        }
+
+        th {
+			background-color:black;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            
+        }
+        #returnButton {
+   			background-color: #d9534f;
+   			color: white;
+   			padding: 12px 24px; 
+   			border: none;
+   			border-radius: 5px;
+   			cursor: pointer;
+  			 margin-left: auto;
+		}
+
+    </style>
+</head>
+<body>
+	  <div id="container">
+        
+        <div id="content">
+    	<h1>借用列表</h1>
+		<button id="returnButton" onclick="returnhome()">回到首頁</button>
+   	 <table id="table">
+        <thead>
+            <tr>
+				<th>借用編號</th>
+                <th>社員姓名</th>
+                <th>借用器材</th>
+                <th>預約時間</th>
+                <th>歸還時間</th>
+                <th>該樂器剩餘數量</th>
+                <th>登記歸還</th>
+            </tr>
+        </thead>
+        <tbody>
+		</tbody>
+    </table>
+
+    <script type="text/javascript">
+		  var url_string = window.location.href;
+		  var url = new URL(url_string);
+		  var id = url.searchParams.get("id");
+		  function returnhome() {
+      			window.location.href = 'admin_home_page.html?id=' + id;
+    	  }
+		 $(document).ready(function() {
+         	getAllBorrowRecord();
+          });
+		 function getAllBorrowRecord() {
+         	$.ajax({
+            	type: "GET",
+                url: "api/borrowrecord.do?" ,
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+       	        	if(response.status == 200){
+                        updateTable(response.response.data);   
+                     }
+                       console.log(response);          
+                },
+                error: function () {
+                	alert("無法連線到伺服器！");
+                }
+              });
+           }
+           	function inputreturntime(borrowrecordid,instrumentid) {
+				var data_string = "id=" + encodeURIComponent(borrowrecordid)+"&instrument_id=" + encodeURIComponent(instrumentid)
+         	$.ajax({
+            	type: "POST",
+                url: "api/borrowrecord.do?" + data_string,
+ 				data_string: data_string,
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+       	        	if(response.status == 200){
+                        getAllBorrowRecord();
+                        alert("成功歸還");
+                     }
+                       console.log(response.response.data);          
+                },
+                error: function () {
+                	alert("無法連線到伺服器！");
+                }
+              });
+           }
+            function updateTable(data) {
+                    $("#table > tbody").empty();
+                    var table_html = '';
+                    $.each(data, function(index, value) {
+                        table_html += '<tr><td scope="row">' + value['borrow_record_id'] + '</td>';
+                        table_html += '<td>' + value['member_name'] + '</td>';
+                        table_html += '<td>' + value['instrument_name'] + '</td>';
+						var returnTime = new Date(value['return_time']).getTime() - (8 * 60 * 60 * 1000);
+						var borrowTime = new Date(value['borrow_time']).getTime() - (8 * 60 * 60 * 1000);
+						var borrowTimeString = new Date(borrowTime).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+						var returnTimeString =new Date(returnTime).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  			 			var threeHoursLater = new Date(borrowTime + 3 * 60 * 60 * 1000).getTime();
+    				 	var currentTime = new Date();
+    				 	 table_html += '<td>' + borrowTimeString + '</td>';
+    				 	if(isNaN(returnTime)){
+				 				table_html += '<td>無 </td>';
+				 
+			 			}else{
+				  				table_html += '<td>' + returnTimeString + '</td>';
+						 }
+						 table_html+= '<td>' + value['instrument_quantity'] + '</td>';
+        				if (isNaN(returnTime)) {
+							if(borrowTime>currentTime){
+								table_html += '<td>已預約</td>';
+							}
+							else{
+            					table_html += '<td><button onclick="inputreturntime(' + value['borrow_record_id'] + ', ' + value['instrument_id'] + ')">登記歸還</button></td>';	
+            				}	
+        				}
+   			 			
+        				else{
+							table_html += '<td>已歸還</td>';
+						}
+
+        					table_html += '</tr>';
+                    })
+
+                    $("#table > tbody").append(table_html);
+                }
+    </script>
+    </div>
+    </div>
+</body>
+</html>

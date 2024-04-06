@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>社課資訊</title>
+    <style>
+	    body {
+	        font-family: 'Segoe UI', sans-serif;
+	        padding: 20px;
+	        background-color: #f4f4f4; /* 添加背景色 */
+	    }
+	
+	    #class-info-header {
+	        background-color: #28a745; 
+	        padding: 15px;
+	        text-align: center;
+	        color: white;
+	        border-radius: 5px; /* 圓角 */
+	    }
+	
+	    .class-info {
+	        border: 1px solid #ccc;
+	        padding: 15px;
+	        margin-bottom: 20px;
+	        background-color: white; /* 添加背景色 */
+	        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 添加陰影 */
+	        border-radius: 5px; /* 圓角 */
+	    }
+	
+	    button {
+	        padding: 10px 15px;
+	        cursor: pointer;
+	        background-color: #28a745; /* 綠色背景 */
+	        border: none;
+	        color: white;
+	        border-radius: 5px; /* 圓角 */
+	        transition: background-color 0.3s, box-shadow 0.3s; /* 過渡效果 */
+	    }
+	
+	    button:hover {
+	        background-color: #218838; /* 深綠色背景 */
+	        box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* 懸停時陰影 */
+	    }
+	
+	    .not-graded {
+	        color: #dc3545; /* 修改未評分的顏色 */
+	    }
+	
+	    .already-signed-up {
+	        background-color: #ffc107; /* 更亮的黃色背景 */
+	        color: black; /* 黑色文字 */
+	    }
+	
+	    #add-class-form {
+	        display: none;
+	        margin-top: 20px;
+	    }
+	
+	    #past-signups-container {
+	        margin-top: 20px;
+	    }
+	
+	    .past-class-text {
+	        color: #dc3545; /* 更加鮮明的紅色 */
+	        font-weight: bold; 
+	    }
+	
+	    #returnButton {
+	        background-color: #d9534f;
+	        color: white;
+	        padding: 12px 24px; 
+	        border: none;
+	        border-radius: 5px;
+	        cursor: pointer;
+	        margin-top: 10px;
+	        margin-left: auto;
+	    }
+
+    </style>
+</head>
+<body>
+
+	<div id="class-info-header">
+    	<h1>社課報名</h1>
+	</div>
+	<button id="returnButton" onclick="returnhome()">回到首頁</button>
+	<div id="class-info-container"></div>
+
+	
+
+	<script>
+    	let url_string = window.location.href;
+    	let url = new URL(url_string);
+    	let id = url.searchParams.get("id");
+    	let classes = [];
+    	let recordClasses=[];
+    	let canSignUpClasses=[];
+		function returnhome() {
+      		window.location.href = 'user_home_page.html?id=' + id;
+    	}
+    	function getAllCourse() {
+    		$.ajax({
+        		type: "GET",
+        		url: "api/course.do",
+       		 	crossDomain: true,
+        		cache: false,
+        		dataType: 'json',
+        		timeout: 5000,
+       			success: function (response) {
+            		updateCourse(response.response.data);
+            		console.log(response);
+            			getCourseRecord();		
+        		},
+       			error: function () {
+            		alert("無法連線到伺服器！");
+        		}
+    		});
+		}
+
+		function getCourseRecord() {
+    		var data_string = "id=" + encodeURIComponent(id);
+    			$.ajax({
+        			type: "GET",
+        			url: "api/courserecord.do?" + data_string,
+        			crossDomain: true,
+        			cache: false,
+        			dataType: 'json',
+        			timeout: 5000,
+        			success: function (response) {
+           				updateCourseRecord(response.response.data);
+            			console.log(response);
+            				filterCanSignUpClasses();
+        			},
+       			 	error: function () {
+            			alert("無法連線到伺服器！");
+        		 	}
+    			});
+		}
+
+		function filterCanSignUpClasses() {
+    		canSignUpClasses = [];
+    		for (const classItem of classes) {
+        	let isRecorded = false;
+        	for (const recordItem of recordClasses) {
+            	if (classItem.course_id === recordItem.course_id) {
+                	isRecorded = true;
+                	break;
+            	}
+        	}
+       		if (!isRecorded) {
+            	canSignUpClasses.push(classItem);
+        	}
+    	}
+   		displayClassInfo();
+}
+
+    	function updateCourse(data) {
+        	classes = [];
+        	for (const course of data) {
+            	let courseInfo = {
+                	course_id:course.course_id,
+                	course_name: course.course_name,
+                	course_start_time: course.course_start_time,
+                	teacher_id: course.member_id,
+                	course_time: course.course_time,
+                	course_location: course.course_location,
+            };       
+            console.log(course);
+            classes.push(courseInfo);
+        	}
+        	displayClassInfo();
+   	 	}
+     	function updateCourseRecord(data) {
+        	recordClasses = [];
+        	for (const course of data) {
+            	let courseInfo = {
+                	course_id:course.course_id,
+                	course_name:course.course_name,
+                	course_start_time:course.course_start_time,
+                	teacher_id:course.member_id,
+                	course_time: course.course_time,	
+               	 	course_location:course.course_location,
+            	};       
+            	console.log(course);
+            	recordClasses.push(courseInfo);
+        	}
+        	displayClassInfo();
+    	}
+
+    	$(document).ready(function () {
+       		getAllCourse();
+  
+    	});
+
+    	function displayClassInfo() {
+    		const container = document.getElementById("class-info-container");
+    		container.innerHTML = ""; 
+    		const heading = document.createElement("h2");
+    		heading.textContent = "報名社課列表";
+   		 	container.appendChild(heading);
+
+    		canSignUpClasses.forEach((classInfo, index) => {
+        		const classDiv = document.createElement("div");
+       			classDiv.classList.add("class-info");
+
+        		const signUpButton = document.createElement("button");
+        		signUpButton.textContent = "報名";
+        		signUpButton.addEventListener("click", () => handleSignUp(index));
+        		classDiv.appendChild(signUpButton);
+
+        		const infoText = document.createTextNode(`課名: ${classInfo.course_name}, 時間: ${classInfo.course_time}, 地點: ${classInfo.course_location}, 老師id: ${classInfo.teacher_id}`);
+        		classDiv.appendChild(infoText);
+        		if (isPastTime(classInfo.course_start_time)) {
+				    const pastText = document.createElement("span");
+				    pastText.textContent = " (已結束)";
+				    pastText.classList.add("past-class-text"); 
+				    classDiv.appendChild(pastText);
+				}
+
+        		container.appendChild(classDiv);
+    		});
+}
+
+    	function handleSignUp(index) {
+    		const signedUpClass = canSignUpClasses[index];
+   			if (isPastTime(signedUpClass.course_start_time)) {
+        		alert("抱歉，該課程已結束，無法報名。");
+        		return;
+    		}
+    		var data_string = "id=" + encodeURIComponent(id) + "&course_id=" + encodeURIComponent(canSignUpClasses[index].course_id);
+
+   			$.ajax({
+        		type: "PUT",
+        		url: "api/courserecord.do?" + data_string,
+        		crossDomain: true,
+        		cache: false,
+        		dataType: 'json',
+        		timeout: 5000,
+        		success: function (response) {
+            		console.log(response);
+            		alert("報名成功");
+        		},
+       			error: function () {
+            		alert("無法連線到伺服器！");
+        		}	
+    		});
+
+    	canSignUpClasses.splice(index, 1);
+
+    	displayClassInfo();
+	}
+
+
+   
+
+	function isPastTime(courseStartTime) {
+    	var now = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    	var courseStart = new Date(courseStartTime).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    	var nowDate = new Date(now);
+    	var courseStartDate = new Date(new Date(courseStart).getTime() - (8 * 60 * 60 * 1000));
+
+
+    	return courseStartDate < nowDate;
+	}
+    	displayClassInfo();
+</script>
+
+</body>
+</html>

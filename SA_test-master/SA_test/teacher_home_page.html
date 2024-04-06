@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="statics/css/admin_home_pageStyle.css">
+</head>
+
+<body>
+	<button id="logoutButton" onclick="logout()">登出</button>
+    <div id="container">     
+        <div id="content">
+            <div id="flashMessage" class="message" style="display: none;"></div>
+
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>學生ID</th>
+                        <th>作業內容</th>
+                        <th>繳交時間</th>
+                        <th>分數</th>
+                        <th>功能</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            
+            <script type="text/javascript">
+                
+                var url_string = window.location.href;
+		   		var url = new URL(url_string);
+		   		var id = url.searchParams.get("id");
+    			function logout() {
+      				window.location.href = 'index.html';
+    			}
+                function getAllhomework() {
+                    $.ajax({
+                            type: "GET",
+                            url: "api/course.do?homework=yes&teacher_id="+id,
+                            crossDomain: true,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if(response.status == 200){
+                                    updateTable(response.response.data);
+                                }
+                                console.log(response);
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                    });
+                }
+                
+                // 更新會員列表表格
+                function updateTable(data) {
+                    $("#table > tbody").empty();
+                    var table_html = '';
+                    $.each(data, function(index, value) {
+                        table_html += '<tr><td scope="row">' + value['student_id'] + '</td>';
+                        table_html += '<td>' + value['content'] + '</td>';
+                        table_html += '<td>' + value['homework_time'] + '</td>';
+                        if(value['score']===undefined){
+							table_html += '<td>尚未批改</td>';
+						}
+                        else{
+							table_html += '<td>' + value['score'] + '</td>';
+						}
+
+                        table_html += '<td>' + '<a href="javascript: changeScore(' + value['student_id'] +','+value['course_id']+ ');">修改分數</a> </td></tr>';
+                       
+                    })
+
+                    $("#table > tbody").append(table_html);
+                }
+                $(document).ready(function() {
+                    getAllhomework();
+                });
+                function changeScore(student_id, course_id) {
+   				var newScore = prompt("請輸入新的分數（0-100）：");
+
+    			if (newScore !== null && !isNaN(newScore)) {
+
+       				 newScore = Math.max(0, Math.min(100, parseInt(newScore, 10)));
+       					 $.ajax({
+            				type: "POST",
+            				url: "api/course.do?student_id=" + student_id + "&course_id=" + course_id + "&new_score=" + newScore,
+            				crossDomain: true,
+           					cache: false,
+            				dataType: 'json',
+            				timeout: 5000,
+           					success: function (response) {
+                				console.log(response);
+                				getAllhomework();
+           	 				},
+            				error: function () {
+                				alert("無法連線到伺服器！");
+            				}
+        				});
+    				} else {
+
+        				alert("請輸入有效的分數（0-100）。");
+    				}
+}
+
+                
+            </script>
+        </div>
+        
+    </div>
+    
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Announcement</title>
+    <link rel="stylesheet" href="statics/css/registerStyle.css">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="register-container">
+        <h2>新增公告</h2>
+        
+            <div class="form-group">
+                <label for="title">標題:</label>
+                <input type="text" id="title" name="title">
+            </div>
+            <div class="form-group">
+                <label for="content">內文:</label>
+                <textarea id="content" name="content"></textarea>
+            </div>
+            <div id="flashMessage" class="message" style="display: none;"></div>
+
+<button type="submit" style="background-color: green; border: none;" id="submit">確認</button>
+        
+    </div>
+
+    <script type="text/javascript">
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var id = url.searchParams.get("id");
+		$("#submit").on("click", function() {
+            create(id);
+        });
+        function create(id) {
+            var title = $('#title').val();
+            var content = $('#content').val();
+
+            if (!title || !content) {
+                alert("請輸入標題或內文.");
+            } else {
+                var data_object = {
+                    "title": title,
+                    "content": content,
+                    "id": id,
+                };
+                var data_string = JSON.stringify(data_object);
+
+                $.ajax({
+                    type: "Put",
+                    url: "api/announcement.do",
+                    data: data_string,
+                    crossDomain: true,	
+                    cache: false,
+                    dataType: 'json',
+                    timeout: 5000,
+                    success: function (response) {
+                        $('#flashMessage').html(response.message);
+                        $('#flashMessage').show();
+                        if (response.status == 200) {
+                            alert("新增成功");
+                            window.location.href = 'announcement_list.html?id='+id;
+                        }
+                    },
+                    error: function () {
+                        alert("無法連接到伺服器!");
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>社課作業繳交</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+
+            background-color: black;
+            color:white;
+            padding: 10px; 
+
+        }
+
+        #inputBox {
+            width: 100%;
+            height: 200px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        #submitButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+         #returnButton {
+    		background-color: #d9534f;
+    		color: white;
+    		padding: 12px 24px; 
+    		border: none;
+    		border-radius: 5px;
+    		cursor: pointer;
+    		margin-left: auto;
+		}
+    </style>
+</head>
+<body>
+    <h1>作業繳交</h1>
+    <button id="returnButton" onclick="returnhome()">回到首頁</button>
+    <script>
+		var url = new URL(window.location.href);
+		var id = url.searchParams.get("id");
+		function returnhome() {
+      		window.location.href = 'user_home_page.html?id=' + id;
+    	}
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const courseName = urlParams.get("course_name");
+        const courseTime = urlParams.get("course_time");
+        const courseLocation = urlParams.get("course_location");
+        const teacherId = urlParams.get("teacher_id");
+        const courseId = urlParams.get("course_id");
+        const member_id = urlParams.get("id");
+
+        function submitAssignment() {
+            var content = document.getElementById("inputBox").value;
+            var data_string = "member_id=" + encodeURIComponent(member_id) + "&course_id=" + encodeURIComponent(courseId) + "&content=" + encodeURIComponent(content) + "&Homework=" + encodeURIComponent("Yes");
+
+            $.ajax({
+                type: "PUT",
+                url: "api/course.do?" + data_string,
+                data: data_string,
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+                    if (response.response.row === 0) {
+                        alert("您已繳交過");
+                    } else {
+                        alert("成功繳交");
+                        location.reload();
+                    }
+                },
+                error: function () {
+                    alert("無法連線到伺服器！");
+                }
+
+            });
+        }
+
+        function getHomeworkByID(course_id, studentID) {
+            var data_string = "member_id=" + encodeURIComponent(studentID) + "&course_id=" + encodeURIComponent(course_id) + "&homework=" + encodeURIComponent("yes");
+            $.ajax({
+                type: "GET",
+                url: "api/course.do?" + data_string,
+                data: data_string,
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+                    console.log(response);
+                    if (response.response.data.length > 0) {
+                        displaySubmittedContent(response.response.data[0].content, response.response.data[0].score);
+                    } else {
+                        displayInputBox();
+                    }
+                },
+                error: function () {
+                    alert("無法連線到伺服器！");
+                }
+
+            });
+
+        }
+
+        function displayInputBox() {
+            document.getElementById("inputBoxContainer").style.display = "block";
+        }
+
+        function displaySubmittedContent(content, score) {
+            var submittedContentDiv = document.getElementById("submittedContent");
+            submittedContentDiv.style.display = "block";
+            if(score===undefined){
+				submittedContentDiv.innerHTML = `
+                <p>您的繳交內容：</p>
+                <p>${content}</p>
+                <p>成績：尚未批改</p>`;
+			}else{
+				submittedContentDiv.innerHTML = `
+                <p>您的繳交內容：</p>
+                <p>${content}</p>
+                <p>成績：${score}</p>`;
+			}
+           
+        }
+
+        $(document).ready(function () {
+            getHomeworkByID(courseId, member_id);
+        });
+    </script>
+
+    <!-- Container for input box -->
+    <div id="inputBoxContainer" style="display: none;">
+        <p>請輸入文字:</p>
+        <textarea id="inputBox" placeholder="在這裡輸入心得..."></textarea>
+        <button id="submitButton" onclick="submitAssignment()">繳交</button>
+    </div>
+
+    <!-- Container for submitted content -->
+    <div id="submittedContent" style="display: none;"></div>
+
+</body>
+</html>

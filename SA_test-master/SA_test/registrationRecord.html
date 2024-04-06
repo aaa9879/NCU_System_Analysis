@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <title>檢視報名紀錄</title>
+    <style>
+		h1{
+			background-color: black;
+            padding: 20px;
+            text-align: center;
+            color: white;
+		}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        #returnButton {
+    		background-color: #d9534f;
+    		color: white;
+    		padding: 12px 24px; 
+    		border: none;
+    		border-radius: 5px;
+    		cursor: pointer;
+    		margin-left: auto;
+		}
+    </style>
+</head>
+<body>
+
+    <h1>檢視報名紀錄</h1>
+	<button id="returnButton" onclick="returnhome()">回到首頁</button>
+    <table id="table">
+        <thead>
+            <tr>
+                <th>課名</th>
+                <th>時間</th>
+                <th>地點</th>
+                <th>老師id</th>
+                <th>功能</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+	<script>
+		 var url_string = window.location.href;
+   		 var url = new URL(url_string);
+   		 var id = url.searchParams.get("id");
+   		 var recordCourseId=[];
+   		 function returnhome() {
+      		window.location.href = 'user_home_page.html?id=' + id;
+    	}
+		function updateTable(data) {
+    $("#table > tbody").empty();
+    var table_html = '';
+
+    $.each(data, function(index, value) {
+    table_html += '<tr><td scope="row">' + value['course_name'] + '</td>';
+    table_html += '<td>' + value['course_time'] + '</td>';
+    table_html += '<td>' + value['course_location'] + '</td>';
+    table_html += '<td>' + value['member_id'] + '</td>';
+    
+    if (isPastTime(value['course_start_time'])) {
+        // 如果課程已經開始，顯示取消報名、評分和繳交作業連結
+        table_html += '<td>' + '<a href="#" onclick="deleterecord(' + id + ',' + value['course_id'] + ",'" + value['course_start_time'] + "');\">取消報名</a>";
+        table_html += ' | <a href="#" onclick="rateCourse(\'' + value['course_id'] + '\',\'' + value['course_name'] + '\',\'' + value['course_location'] + '\',\'' + value['course_time'] + '\',\'' + value['member_id'] + '\');">評分</a>';
+        table_html += ' | <a href="#" onclick="submitHomework(\'' + value['course_id'] + '\',\'' + value['course_name'] + '\',\'' + value['course_location'] + '\',\'' + value['course_time'] + '\',\'' + value['member_id'] + '\');">繳交作業/查看成績</a></td></tr>';
+    } else {
+        // 如果課程還未開始，僅顯示取消報名連結
+        table_html += '<td>' + '<a href="#" onclick="deleterecord(' + id + ',' + value['course_id'] + ",'" + value['course_start_time'] + "');\">取消報名</a></td></tr>";
+    }
+});
+
+
+    $("#table > tbody").append(table_html);
+}
+
+// 判斷課程是否已經開始
+function isPastTime(courseStartTime) {
+    var now = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    var courseStart = new Date(courseStartTime).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    // 將日期字符串轉換為日期對象
+    var nowDate = new Date(now);
+    
+    // 減去 8 小時的毫秒數
+    var courseStartDate = new Date(new Date(courseStart).getTime() - (8 * 60 * 60 * 1000));
+
+    return courseStartDate < nowDate;
+}
+
+
+
+// 添加評分的函數
+function rateCourse(courseId,courseName,courseLocation,courseTime,TeacherId) {
+	
+	window.location.href = 'classRating.html?id='+id+'&course_id='+courseId+'&course_name='+courseName+'&course_time='+courseTime+'&teacher_id='+TeacherId+'&course_location='+courseLocation;
+}
+function submitHomework(courseId,courseName,courseLocation,courseTime,TeacherId) {
+	
+	window.location.href = 'submitHomework.html?id='+id+'&course_id='+courseId+'&course_name='+courseName+'&course_time='+courseTime+'&teacher_id='+TeacherId+'&course_location='+courseLocation;
+}	
+	$(document).ready(function() {
+	    getAllrecordCourse();
+	});
+	function getAllrecordCourse() {
+		var data_string = "id=" + encodeURIComponent(id);
+		$.ajax({
+		    type: "GET",
+		    url: "api/courserecord.do?" + data_string,
+		    crossDomain: true,
+		    cache: false,
+		    dataType: 'json',
+		    timeout: 5000,
+		    success: function (response) {
+		   		updateTable(response.response.data);
+		        console.log(response.response.data);
+		    },
+		    error: function () {
+		        alert("無法連線到伺服器！");
+		    }
+		});
+	}
+    
+    function deleterecord(member_id, course_id, course_start_time) {
+    // 將 course_start_time 轉換為 JavaScript Date 對象
+    var startTime = new Date(course_start_time);
+
+    // 減去 8 小時
+    startTime.setHours(startTime.getHours() - 8);
+
+    // 檢查 course_start_time 是否小於現在的時間
+    if (startTime < new Date()) {
+        // 如果是，顯示警告訊息
+        alert("無法取消已開始的課程！");
+    } else {
+        // 否則，繼續執行 AJAX 請求
+        var data_string = "id=" + encodeURIComponent(member_id) + "&course_id=" + encodeURIComponent(course_id);
+        $.ajax({
+            type: "Delete",
+            url: "api/courserecord.do?" + data_string,
+            crossDomain: true,
+            cache: false,
+            dataType: 'json',
+            timeout: 5000,
+            success: function (response) {
+                console.log(response);
+                getAllrecordCourse();
+                // 更新課程記錄
+            },
+            error: function () {
+                alert("無法連線到伺服器！");
+            }
+        });
+    }
+}
+
+
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="statics/css/user_home_pageStyle.css">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <title>音樂社團登入首頁</title>
+</head>
+
+<body>
+
+    <header>
+		<img src="statics/img/logo.png" alt="Logo" class="logo">
+        <h1>音樂社團</h1>
+        <button id="logoutButton" onclick="logout()">登出</button>
+        <script>
+			
+            function getCurrentURLParams() {
+                var currentURL = new URL(window.location.href);
+                var params = new URLSearchParams(currentURL.search);
+                
+                return params;
+            }
+
+            function navigateToPage(page) {
+                var currentParams = getCurrentURLParams();
+                window.location.href = page + '?' + currentParams.toString();
+            }
+             function logout() {
+      			window.location.href = 'index.html';
+    		}
+        </script>
+    </header>
+
+    <nav>
+        <a href="javascript:void(0);" onclick="navigateToPage('borrow.html')">預約器材</a>
+		<a href="javascript:void(0);" onclick="updateIdInHref()">更改個人資料</a>
+		<a href="javascript:void(0);" onclick="navigateToPage('classINFO.html')">報名社課</a>
+		<a href="javascript:void(0);" onclick="navigateToPage('article.html')">討論區</a>
+		<a href="javascript:void(0);" onclick="navigateToPage('PaidRecord.html')">顯示繳費記錄</a>
+		<a href="javascript:void(0);" onclick="navigateToPage('registrationRecord.html')">檢視報名紀錄</a>
+		<a href="javascript:void(0);" onclick="navigateToPage('cancelborrow.html')">取消預約</a>
+
+
+    </nav>
+
+    <section>
+        <main>
+            <section>
+                <ul id="announcementList"></ul>
+            </section>
+        </main>
+    </section>
+    <div class="slider">
+		    <div class="slides">
+		        <div class="slide">
+		            <img src="statics/img/taipei_music.jpg" alt="台北愛樂">
+		            <p>台北愛樂樂團來到本社團與社員交流，分享音樂心得和經驗。</p>
+		        </div>
+		        <div class="slide">
+		            <img src="statics/img/berlin_music.jpg" alt="柏林愛樂">
+		            <p>柏林愛樂樂團訪問我們社團，帶來精彩的演出和互動。</p>
+		        </div>
+		        <div class="slide">
+		            <img src="statics/img/city_concert.jpg" alt="市民交響樂團">
+		            <p>市民交響樂團與我們的社員進行了一場音樂創作工作坊。</p>
+		        </div>
+		    </div>
+		</div>
+
+    <footer>
+        <p>&copy; 2023 音樂社團. 版權所有。</p>
+    </footer>
+
+    <script>
+		 var url_string = window.location.href;
+        var url = new URL(url_string);
+        var id = url.searchParams.get("id");
+		
+        $(document).ready(function () {
+            getAllAnnouncement();
+        });
+
+        function getAllAnnouncement() {
+            $.ajax({
+                type: "GET",
+                url: "api/announcement.do",
+                crossDomain: true,
+                cache: false,
+                dataType: 'json',
+                timeout: 5000,
+                success: function (response) {
+                    if (response.status == 200) {
+                        updateAnnouncement(response.response.data);
+                    }
+                    console.log(response);
+                },
+                error: function () {
+                    alert("無法連線到伺服器！");
+                }
+            });
+        }
+
+		function updateAnnouncement(data) {
+		    $("#announcementList").empty();
+		    $.each(data, function (index, value) {
+		        var listItem = '<li class="announcement-card">';
+		        listItem += '<h3 class="announcement-title">' + value['title'] + '</h3>';
+		        listItem += '<p class="announcement-content">' + value['announcement_content'] + '</p>';
+		        listItem += '</li>';
+		
+		        $("#announcementList").append(listItem);
+		    });
+		}
+
+        function updateIdInHref() {
+        	window.location.href = 'edit_INFO.html?id=' + id + '&edit_id=' + id + '&identity=' +'1' ;
+
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+		    let index = 0;
+		    const slides = document.querySelector('.slides');
+		    const slideCount = document.querySelectorAll('.slide').length;
+		
+		    function nextSlide() {
+		        index = (index + 1) % slideCount;
+		        slides.style.transform = 'translateX(-' + index * 100 + '%)';
+		    }
+		
+		    // 每隔5秒自動切換到下一張圖片
+		    setInterval(nextSlide, 5000);
+		});
+    </script>
+
+</body>
+
+</html>
+

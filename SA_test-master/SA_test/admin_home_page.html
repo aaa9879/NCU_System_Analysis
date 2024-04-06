@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="statics/css/user_home_pageStyle.css">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <title>系統管理者首頁</title>
+   
+</head>
+<body>
+
+    <header>
+		<img src="statics/img/logo.png" alt="Logo" class="logo">
+        <h1>音樂社團</h1>
+        <button id="logoutButton" onclick="logout()">登出</button>
+        	<script>
+    		// 定義一個函式，用於取得當前 URLSearchParams 中的參數
+    		function getCurrentURLParams() {
+       		 var currentURL = new URL(window.location.href);
+        	var params = new URLSearchParams(currentURL.search);
+        	return params;
+    		}
+
+    		// 這個函式用於點擊按鈕時將 URLSearchParams 中的參數附加到新的 URL 中
+   		    function navigateToPage(page) {
+        	var currentParams = getCurrentURLParams();
+        	window.location.href = page + '?' + currentParams.toString();
+    		}
+    		function logout() {
+      			window.location.href = 'index.html';
+    		}
+			</script>
+    </header>
+
+    <nav>
+		
+    <!-- 這是一個示例，你需要根據實際情況修改每個按鈕的 href -->
+    <a href="javascript:void(0);" onclick="navigateToPage('AdminArticle.html')">內容審核</a>
+    <a href="javascript:void(0);" onclick="navigateToPage('admin.html')">管理者系統</a>
+    <a href="javascript:void(0);" onclick="navigateToPage('admin_return.html')">歸還器材</a>
+    <a href="javascript:void(0);" onclick="navigateToPage('announcement_list.html')">公告系統</a>
+    <a href="javascript:void(0);" onclick="navigateToPage('member_list.html')">檢視社員</a>
+	<a href="javascript:void(0);" onclick="navigateToPage('teacher_list.html')">檢視老師</a>
+	<a href="javascript:void(0);" onclick="navigateToPage('addclass.html')">新增社課</a>
+	<a href="javascript:void(0);" onclick="navigateToPage('course_list.html')">檢視社課</a>
+	<a href="javascript:void(0);" onclick="navigateToPage('admin_registrationRecord.html')">檢視社課報名紀錄</a>
+	</nav>
+
+
+    <section>
+
+    </section>
+
+    <footer>
+        <p>&copy; 2023 音樂社團. 版權所有。</p>
+    </footer>
+
+
+</body>
+
+</html>

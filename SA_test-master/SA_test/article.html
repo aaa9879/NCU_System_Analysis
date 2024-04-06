@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: black; 
+        }
+        
+
+        #articles-list {
+            margin-top: 20px;
+        }
+
+        .article {
+            border: 1px solid #3d3d3d; 
+            padding: 10px;
+            background-color: #333; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+            margin-bottom: 10px;
+            color:white; 
+        }
+
+        .reply {
+            background-color: #444; 
+            border: 1px solid #3d3d3d; 
+            border-radius: 5px; 
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        #new-article-button, .reply-button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #5cb85c; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s; 
+        }
+
+        #new-article-button:hover, .reply-button:hover {
+            background-color: #5a5a5a; 
+        }
+       	#returnButton {
+    		background-color: #d9534f;
+    		color: white;
+    		padding: 12px 24px; 
+    		border: none;
+    		border-radius: 5px;
+    		cursor: pointer;
+    		margin-left: auto;
+		}
+    </style>
+</head>
+
+<body>
+	<header>
+		<h1>討論區</h1>
+		<button id="returnButton" onclick="returnhome()">回到首頁</button>
+	</header>
+    <button id="new-article-button">發起文章</button>
+    <div id="articles-list"></div>
+
+    <script>
+		let url_string = window.location.href;
+    	let url = new URL(url_string);
+		let id = url.searchParams.get("id");
+		function returnhome() {
+      		window.location.href = 'user_home_page.html?id=' + id;
+    	}
+        async function displayArticles() {
+
+		    const articlesList = document.getElementById('articles-list');
+		    articlesList.textContent = '';
+		
+		    try {
+		        const response = await $.ajax({
+		            type: "GET",
+		            url: "api/article.do",
+		            contentType: 'application/json',
+		        });
+		
+		        const articles = response.response.data;
+		
+		        for (const article of articles) {
+				    const articleDiv = document.createElement('div');
+				    articleDiv.classList.add('article');
+				    articleDiv.innerHTML = `
+				        <h3>${article.title}</h3>
+				        <p>${article.article_content}</p>
+				        <p>發文者ID: ${article.member_id}</p>
+				        <button class="reply-button" data-article-id="${article.article_id}">回覆</button>
+				        <div class="replies-container" data-article-id="${article.article_id}"></div>`;
+				
+				    articlesList.appendChild(articleDiv);
+				
+				    const repliesContainer = articleDiv.querySelector('.replies-container');
+				    await displayReplies(article.article_id, repliesContainer);
+				
+				    const replyButton = articleDiv.querySelector('.reply-button');
+				    replyButton.addEventListener('click', showReplyDialog);
+				}
+
+		    } catch (error) {
+		        console.error("Error fetching articles:", error);
+		        alert("Error fetching articles");
+		    }
+		}
+		
+	async function displayReplies(articleId, container) {
+	    try {
+	        const response = await $.ajax({
+	            type: "GET",
+	            url: "api/message.do?article_id=" + articleId,
+	            contentType: 'application/json',
+	        });
+	
+	        const replies = response.response.replies;
+			console.log(response.response.replies);
+				        if (replies && replies.length > 0) {
+			    replies.forEach(reply => {
+			        const replyDiv = document.createElement('div');
+			        replyDiv.classList.add('reply');
+			
+			        // Concatenate message content and poster's ID in the same line
+			        replyDiv.textContent = `${reply.message_content}- 留言者ID: ${reply.member_id}`;
+			
+			        container.appendChild(replyDiv);
+			    });
+			}
+	    } catch (error) {
+	        console.error("Error fetching replies:", error);
+	        alert("Error fetching replies");
+	    }
+	}
+
+
+
+
+        function showNewArticleDialog() {
+            const title = prompt('輸入文章標題：');
+            const content = prompt('輸入文章內容：');
+
+            if (title && content) {
+                // 假設有一個添加文章的函數 addArticle
+                addArticle(title, content);
+            }
+        }
+
+        function showReplyDialog(event) {
+            const articleId = event.target.getAttribute('data-article-id');
+            const content = prompt('回覆內容：');
+
+            if (content) {
+                // 假設有一個添加回覆的函數 addReply
+                addReply(articleId, content);
+            }
+        }
+
+        // 假設有一個添加文章的函數
+        function addArticle(title, content) {
+            var url = new URL(window.location.href);
+            var id = url.searchParams.get("id");
+            var data = {
+                title: title,
+                content: content,
+                member_id: id
+            };
+            $.ajax({
+                type: "POST",
+                url: "api/article.do",
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    console.log(response);
+                    displayArticles();  // 重新顯示文章列表
+                },
+                error: function() {
+                    alert("Error posting article");
+                }
+            });
+        }
+
+        // 假設有一個添加回覆的函數
+        function addReply(articleId, content) {
+		    var url = new URL(window.location.href);
+		    var id = url.searchParams.get("id");
+		
+		    var currentDateTime = new Date();
+		    var formattedDateTime = currentDateTime.toISOString();
+		
+		    var data = {
+		        message_content: content,
+		        message_time: formattedDateTime,
+		        article_id: articleId,
+		        member_id: id
+		    };
+		
+		    $.ajax({
+		        type: "POST",
+		        url: "api/message.do",
+		        contentType: 'application/json',
+		        data: JSON.stringify(data),
+		        success: function(response) {
+		            const repliesContainer = $(`[data-article-id="${articleId}"] .replies-container`);
+		            const replyDiv = document.createElement('div');
+		            replyDiv.classList.add('reply');
+		            replyDiv.textContent = content;
+		            repliesContainer.append(replyDiv);
+		
+		            alert('回覆已成功提交！');
+		            
+		            // 在成功添加回覆後，重新顯示文章和回覆列表
+		            displayArticles();
+		        },
+		        error: function() {
+		            alert('提交回覆時發生錯誤！');
+		        }
+		    });
+		}
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            displayArticles();
+
+            const newArticleButton = document.getElementById('new-article-button');
+            newArticleButton.addEventListener('click', showNewArticleDialog);
+        });
+       
+    </script>
+</body>
+</html>

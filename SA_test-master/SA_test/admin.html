@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>Admin</title>
+    <style>
+        header {
+            background-color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+
+        .message {
+            display: none;
+        }
+        #returnButton {
+   			background-color: #d9534f;
+   			color: white;
+   			padding: 12px 24px; 
+   			border: none;
+   			border-radius: 5px;
+   			cursor: pointer;
+  			 margin-left: auto;
+		}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>系統管理者</h1>
+<button id="button" class="btn btn-primary" style="background-color: #4CAF50; color: #000; padding: 5px 10px; margin: 0 5px; border: none; outline: none;">新增系統管理者或老師</button>
+<button id="returnButton" onclick="returnhome()">回到首頁</button>
+    </header>
+    <div class="container mt-4">
+        <div class="content">
+            <div id="flashMessage" class="message alert alert-success"></div>
+            <table id="table" class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>編號</th>
+                        <th>姓名</th>
+                        <th>帳號</th>
+                        <th>密碼</th>
+                        <th>電話</th>
+                        <th>組別</th>
+                        <th>建立時間</th>
+                        <th>身分</th>
+                        <th>功能</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <script type="text/javascript">
+                var url_string = window.location.href;
+		   		var url = new URL(url_string);
+		   		var id = url.searchParams.get("id");
+                var sql_num = 0;
+                function returnhome() {
+      				window.location.href = 'admin_home_page.html?id=' + id;
+    			}
+                function deleteMember(idToDelete) {
+				    var check = window.confirm("確認刪除系統使用者？");
+			    if (check == true) {
+			        // 檢查是否是當前登入的管理者
+			        if (id == idToDelete) {
+			            alert("無法刪除當前登入的管理者帳號！");
+			            return;
+			        }
+			
+			        console.log("You pressed OK!");
+			        var request = {'id': idToDelete};
+			        var data_string = JSON.stringify(request);
+			        $.ajax({
+			            type: "DELETE",
+			            url: "api/member.do",
+			            crossDomain: true,
+			            data: data_string,
+			            cache: false,
+			            dataType: 'json',
+			            timeout: 5000,
+			            success: function (response) {
+			                if(response.status == 200){
+			                    $("#flashMessage").html("成功! 已經成功刪除系統使用者...");
+			                    $("#flashMessage").show();
+			                    getAlladmin();
+			                }
+			                console.log(response);
+			            },
+			            error: function () {
+			                alert("無法連線到伺服器！");
+			            }
+			        });
+			    }
+			    else {
+			        console.log("You pressed Cancel!");
+			    }
+			}
+
+
+                function getAlladmin() {
+                    // GET請求取得所有使用者列表
+                    $.ajax({
+                            type: "GET",
+                            url: "api/member.do?admin=yes",
+                            crossDomain: true,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if(response.status == 200){
+                                    updateTable_user(response.response.data);
+                                }
+                                console.log(response);
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                    });
+                }
+                
+                // 更新會員列表表格
+                function updateTable_user(data) {
+                    $("#table > tbody").empty();
+                    var table_html = '';
+                    $.each(data, function(index, value) {
+                        table_html += '<tr><td scope="row">' + value['id'] + '</td>';
+                        table_html += '<td>' + value['name'] + '</td>';
+                        table_html += '<td>' + value['account'] + '</td>';
+                        table_html += '<td>' + value['password'] + '</td>';
+                         table_html += '<td>' + value['phone'] + '</td>';
+                        table_html += '<td>' + value['group'] + '</td>';
+                        table_html += '<td>' + value['create_time'] + '</td>';
+                       if(value['identity']==='1'){
+							table_html += '<td>' + '社員' + '</td>';
+						}
+						else if(value['identity']==='2'){
+							table_html += '<td>' + '管理者' + '</td>';
+						}
+						else{
+							table_html += '<td>' + '老師' + '</td>';
+						}
+                         table_html += '<td>' + '<a href="edit_INFO.html?edit_id=' + value['id']+"&edit_identity="+ value['identity'] +"&id="+ id+"&identity="+ '2'+ '">編輯</a> | ';
+                        table_html += '<a href="javascript: deleteMember(' + value['id'] + ');">刪除</a></td></tr>';
+                    })
+
+                    $("#table > tbody").append(table_html);
+                }
+                $(document).ready(function() {
+                    getAlladmin();                 
+   
+                });
+                 $('#button').click(function() {
+                    window.location.href='create_admin.html?id='+id;
+                });
+                
+            </script>
+        </div>
+    </div>
+</body>
+</html>

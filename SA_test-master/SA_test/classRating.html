@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+  <title>社課評分</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      background-color: black;
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+    }
+
+    #container {
+      text-align: center;
+    }
+
+    #userData {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 50px;
+      padding: 5px;
+      margin: 0 10px;
+      text-align: center;
+    }
+
+    #submitBtn {
+      padding: 10px;
+      background-color: #5cb85c;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #returnButton {
+    	background-color: #d9534f;
+    	color: white;
+    	padding: 12px 24px; 
+    	border: none;
+    	border-radius: 5px;
+    	cursor: pointer;
+    	margin-left: auto;
+    	position: absolute;
+    	top: 10px;
+    	left: 10px;
+	}
+  </style>
+</head>
+<body>
+  <button id="returnButton" onclick="returnhome()">回到首頁</button>
+  <h1>社課評分</h1>
+  <div id="container">
+    <div id="userData">
+      <p>課名: <span id="courseName"></span></p>
+      <p>時間: <span id="courseTime"></span></p>
+      <p>地點: <span id="courseLocation"></span></p>
+      <p>老師id: <span id="teacherId"></span></p>
+      <label for="rating">評分 (1-5):</label>
+      <input type="number" id="rating" min="1" max="5">
+    </div>
+    <button id="submitBtn" onclick="submitRating()">送出</button>
+  </div>
+
+  <script>
+	var url_string = window.location.href;
+	var url = new URL(url_string);
+	var id = url.searchParams.get("id");
+	function returnhome() {
+      	window.location.href = 'user_home_page.html?id=' + id;
+    }
+    // 從 URL 中取得參數
+    const urlParams = new URLSearchParams(window.location.search);
+    // 從參數中取得相應的值
+    const courseName = urlParams.get("course_name");
+    const courseTime = urlParams.get("course_time");
+    const courseLocation = urlParams.get("course_location");
+    const teacherId = urlParams.get("teacher_id");
+    const courseId =urlParams.get("course_id");
+    const member_id=urlParams.get("id");
+
+    // 將值放入 HTML 中
+    document.getElementById("courseName").textContent = courseName;
+    document.getElementById("courseTime").textContent = courseTime;
+    document.getElementById("courseLocation").textContent = courseLocation;
+    document.getElementById("teacherId").textContent = teacherId;
+
+    function submitRating() {
+      const rating = document.getElementById("rating").value;	
+		if(rating==""){
+			alert("請輸入評分");
+		}
+		else{
+			var data_string = "course_id=" + encodeURIComponent(courseId)+ "&member_id=" + encodeURIComponent(member_id)+"&rating="+encodeURIComponent(rating);
+	    	 $.ajax({
+	            type: "PUT",
+	            url: "api/course.do?" + data_string,
+	            data: data_string,  
+	            crossDomain: true,
+	            cache: false,
+	            dataType: 'json', 
+	            timeout: 5000,
+	            success: function (response) {
+				       console.log(response.response);
+				      if(response.response.row==0){
+						  alert("您已評分過\n"+"上次評論的分數："+response.Rating);
+						   window.location.href = 'registrationRecord.html?id=' + id;
+					  }else{
+						  alert("成功評分");
+						  window.location.href = 'registrationRecord.html?id=' + id;
+					  }
+				    },
+				    error: function () {
+				        alert("無法連線到伺服器！");
+				    }
+	          
+	        });
+		}
+		
+		
+    }
+  </script>
+</body>
+</html>

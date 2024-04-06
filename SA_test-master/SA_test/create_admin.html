@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Admin Page</title>
+    <link rel="stylesheet" href="statics/css/registerStyle.css">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+	<button id="returnButton" onclick="returnhome()">回到首頁</button>
+    <div class="register-container">
+        <h2>新增管理者或老師</h2>
+        <form class="register-form">
+            <div class="form-group">
+                <label for="name">姓名:</label>
+                <input type="text" id="name" name="name">
+            </div>
+            <div class="form-group">
+                <label for="email">電子郵件:</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="password">密碼:</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <div class="form-group">
+                <label for="phone">電話號碼:</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="identity">身份:</label>
+                <select id="identity" name="identity">
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="2">系統管理員</option>
+                    <option value="3">老師</option>
+                </select>
+            </div>
+
+            <button type="button" class="submit" id="submit">確認</button>      
+        </form>
+    </div>
+
+    <script type="text/javascript">
+                let url_string = window.location.href;
+    			let url = new URL(url_string);
+    			let id = url.searchParams.get("id");
+    			function returnhome() {
+      				window.location.href = 'admin_home_page.html?id=' + id;
+   				}
+                // 取得網址參數
+				$(document).ready(function() {
+                    var $form = $('#submit');
+                    $form.click(function() {
+                      	createAdmin();
+                    });
+                });
+                
+                
+                function createAdmin() {
+                    var name = $('#name').val();
+                    var email = $('#email').val();
+                    var password = $('#password').val();
+                    var phone = $('#phone').val();
+                    var group = "無";
+					var identity = $('#identity').val();
+					var email_rule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+                    var password_rule = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+						
+                     if (!email_rule.test(email)) {
+                            alert("Email格式不符！");
+                        }
+                        else if(!password_rule.test(password)) {
+                            alert("密碼格式不符，長度至少8，且至少包含一個數字和英文字母！");
+                        }
+                        else if(identity===null){
+							alert("未選擇身份!");
+						}
+                    else {
+                        // 將資料組成JSON格式
+                        var data_object = {
+                            "email": email,
+                            "name": name,
+                            "password": password,
+                            "phone": phone,
+                            "identity": identity,
+                            "group":group
+                        };
+
+                        // 將JSON格式轉換成字串
+                        var data_string = JSON.stringify(data_object);
+                        $.ajax({
+                                type: "Put",
+                                url: "api/member.do?admin=yes",
+                                data: data_string,
+                                crossDomain: true,
+                                cache: false,
+                                dataType: 'json',
+                                timeout: 5000,
+                                success: function (response) {
+                                    $('#flashMessage').html(response.message);
+                                    $('#flashMessage').show();
+                                    console.log (response);
+                                    if(response.status == 200){
+                                         alert("新增成功");
+                                         window.location.href = 'admin_home_page.html?id='+id;
+                                    }else if (response.status==400){
+										alert("E-mail帳號重複");
+									}
+                                },
+                                error: function () {
+                                    alert("無法連線到伺服器！");
+                                }
+                        });
+                    }
+                }
+
+    </script>
+</body>
+</html>

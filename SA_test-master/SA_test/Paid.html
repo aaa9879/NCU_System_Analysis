@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="statics/js/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <title>社費繳納</title>
+    <style>
+        body {
+            background-color: #FFFFFF;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            text-align: center;
+            padding: 10px;
+            color: #FFFFFF;
+        }
+
+        section {
+            padding: 20px;
+            text-align: center; /* Center-align text */
+        }
+
+        p {
+            margin-bottom: 10px; /* Add some spacing between paragraphs */
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #paymentMethodButtons button {
+            margin-right: 10px;
+            background-color: rgb(0, 128, 0);
+            color: #000000;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #paymentMethodButtons button:hover {
+            background-color: #5cb85c;
+        }
+
+        #confirmPaymentButton {
+            background-color: rgb(0, 128, 0);
+            color: #FFFFFF;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            opacity: 0.6;
+        }
+
+        #confirmPaymentButton:hover {
+            background-color: #5cb85c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>社費繳納</h1>
+    </header>
+    <section>
+        <form id="paymentForm">
+            <p id="paymentCode"></p>
+			<p id="currentTime"></p>
+
+       		<div class="form">
+            <label for="payment">選擇繳費方式:</label>
+                <select id="payment" name="payment">
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="ATM">ATM</option>
+                    <option value="creditcard">信用卡</option>
+                </select>
+            </div>
+            <button id="confirmPaymentButton">確認繳費</button>       
+        </form>
+    </section>
+
+    <script>
+		var url = new URL(window.location.href);
+		var id = url.searchParams.get("id");
+		
+       
+        var $form = $('#confirmPaymentButton');
+        	$form.click(function (event) {
+				event.preventDefault();
+				var payment = $('#payment').val();
+            	confirmPayment(payment);
+        	});	
+        	
+        function confirmPayment(payment) {
+        	if(payment!=null){
+				var data_string ="id="+encodeURIComponent(id);
+				$.ajax({
+					type: "PUT",
+					url: "api/paidrecord.do?" + data_string,
+				    data: data_string,
+				    crossDomain: true,
+				    cache: false,
+			        dataType: 'json',
+				    timeout: 5000,
+				    success: function (response) {
+						 console.log(response.response);
+						 alert('繳費成功！');
+						 window.location.href = 'index.html';
+						 
+					},
+					error: function () {
+                    	alert("無法連線到伺服器！");
+                    }
+				});
+				}
+				    
+			else{
+        		 alert('請選擇付款方式');
+			}
+			
+		}
+    </script>
+</body>
+</html>

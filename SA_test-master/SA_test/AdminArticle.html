@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文章列表</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white; 
+        }
+        .article {
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #FCFCFC;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+     th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    color:white;
+}
+ td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    color: black;
+}
+th {
+    background-color: #333; 
+}
+
+tr {
+    background-color:white; 
+}
+#returnButton {
+   background-color: #d9534f;
+   color: white;
+   padding: 12px 24px; 
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   margin-left: auto;
+}
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>文章列表</h1>
+	<button id="returnButton" onclick="returnhome()">回到首頁</button>
+    <table id="articles-table">
+        <thead>
+            <tr>
+                <th>標題</th>
+                <th>內容</th>
+                <th>發布時間</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 文章内容将被动态插入 -->
+        </tbody>
+    </table>
+
+    <script>
+		var url = new URL(window.location.href);
+		var id = url.searchParams.get("id");
+        $(document).ready(function() {
+            getArticles();
+        });
+		function returnhome() {
+      		window.location.href = 'admin_home_page.html?id=' + id;
+    	}
+        function getArticles() {
+            $.ajax({
+                type: "GET",
+                url: "api/article.do",
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.response && Array.isArray(response.response.data)) {
+                        updateArticlesTable(response.response.data);
+                        console.log(response.response.data)
+                    } else {
+                        alert("沒有找到文章。");
+                    }
+                },
+                error: function() {
+                    alert("無法連線到伺服器！");
+                }
+            });
+        }
+
+        function updateArticlesTable(data) {
+            var table_html = '';
+            $.each(data, function(index, article) {
+                table_html += '<tr>';
+                table_html += '<td>' + article.title + '</td>';
+                table_html += '<td>' + article.article_content + '</td>';
+                table_html += '<td>' + new Date(article.article_time).toLocaleString() + '</td>';
+                table_html += '<td><button onclick="deleteArticle(' + article.article_id + ')">刪除文章</button></td>';
+                table_html += '</tr>';
+            });
+            $("#articles-table > tbody").html(table_html);
+        }
+
+        function deleteArticle(article_id) {
+            if (!confirm('確定要刪除這篇文章嗎？')) return;
+            
+            $.ajax({
+                type: "DELETE",
+                url: "api/article.do?id=" + article_id,
+                success: function (response) {
+                    if (response.status == 200) {
+                        alert("刪除成功");
+                        getArticles(); // 重新獲取文章列表
+                    } else {
+						console.log(response.response.data);
+                        alert("刪除失敗：" + response.message);
+                    }
+                },
+                error: function () {
+                    alert("無法連線到伺服器！");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
